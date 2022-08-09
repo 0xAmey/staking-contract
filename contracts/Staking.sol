@@ -3,14 +3,20 @@ pragma solidity ^0.8.7;
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
+/*----------------------------------*/
+/*             Errors               */
+/*----------------------------------*/
+
+error Staking__NoRewardsYet();
+
 contract Staking {
     /*----------------------------------*/
     /*      Variables and Mappings      */
     /*----------------------------------*/
 
     // declaring the staking and rewards token
-    IERC20 public rewardsToken;
-    IERC20 public stakingToken;
+    IERC20 private rewardsToken;
+    IERC20 private stakingToken;
 
     //declaring the rate at which the rewards will be given out (per second)
     uint256 public rewardRate = 100;
@@ -94,11 +100,21 @@ contract Staking {
         uint256 reward = rewards[msg.sender];
         rewards[msg.sender] = 0;
         rewardsToken.transfer(msg.sender, reward);
+
+        if (rewards[msg.sender] == 0) {
+            revert Staking__NoRewardsYet();
+        }
+    }
+
+    /*----------------------------------*/
+    /*          Getter functions        */
+    /*----------------------------------*/
+
+    function getStakingTokenAddress() public view returns (address) {
+        return address(stakingToken);
+    }
+
+    function getRewardsTokenAddress() public view returns (address) {
+        return address(rewardsToken);
     }
 }
-
-/*----------------------------------*/
-/*              MATH!!              */
-/*----------------------------------*/
-
-// here we go, this took me a lot of time to get in
