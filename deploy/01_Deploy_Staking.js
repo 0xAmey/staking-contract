@@ -8,8 +8,10 @@ const { getContractAddress } = require("ethers/lib/utils")
 const tokenAddress = "0xACf8151332430109AAbc899411427935b7D941B5"
 
 module.exports = async ({ getNamedAccounts, deployments }) => {
+    // getting the deployer account
     const { deploy, log } = deployments
     const { deployer } = await getNamedAccounts()
+    // deploying the stacking contract
     const StakingContract = await deploy("Staking", {
         from: deployer,
         args: [tokenAddress, tokenAddress],
@@ -20,6 +22,7 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
     log(" ")
     log(`Staking Contract deployed at ${StakingContract.address}`)
 
+    // verifying the contract
     if (!developmentChains.includes(network.name) && process.env.ETHERSCAN_API_KEY) {
         await verify(StakingContract.address, [tokenAddress, tokenAddress])
     }

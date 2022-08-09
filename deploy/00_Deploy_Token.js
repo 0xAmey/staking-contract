@@ -14,6 +14,7 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
     log(" ")
     log(`Pirate Token deployed at ${PirateToken.address}`)
 
+    // verifying the contract (it didn't work for this token for some reason)
     if (!developmentChains.includes(network.name) && process.env.ETHERSCAN_API_KEY) {
         await verify(PirateToken.address, [])
     }

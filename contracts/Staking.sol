@@ -4,33 +4,50 @@ pragma solidity ^0.8.7;
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
 contract Staking {
+    /*----------------------------------*/
+    /*      Variables and Mappings      */
+    /*----------------------------------*/
+
     // declaring the staking and rewards token
     IERC20 public rewardsToken;
     IERC20 public stakingToken;
 
     //declaring the rate at which the rewards will be given out (per second)
-    uint256 public rewardRate = 7;
+    uint256 public rewardRate = 100;
+
     //keeping track of when was the last time contract was called
     uint256 public lastCall;
-    //summation of reward rate / total supply staked
+
+    //summation of reward rate / total supply staked (see last for math)
     uint256 public rewardsPerTokenStored;
 
     //stores rewardsPerToken when the address first interacts with contract
     mapping(address => uint256) public rewardsPerTokenPaid;
-    //storing the amount of rewards of the address
+
+    //storing the amount of rewards belonging to a certain address (see last for math)
     mapping(address => uint256) rewards;
 
-    //total num of tokens staked in the contract
+    //total number of tokens staked in the contract
     uint256 public totalStaked;
-    //num of tokens staked per user
+
+    //number of tokens staked per user
     mapping(address => uint256) private userBalance;
 
-    //initializing the addrssess of stakign and reward tokens
+    /*----------------------------------*/
+    /*            Constructor           */
+    /*----------------------------------*/
+
+    //initializing the addrssess of staking token and reward tokens
     constructor(address _stakingToken, address _rewardsToken) {
-        // typecasting the address to ERC-20 token (or smth like that, not sure but it works)
+        // typecasting the address to become ERC-20 tokens or getting the token by inputting the addres
+        //(or smth like that, not completely sure but it always works)
         stakingToken = IERC20(_stakingToken);
         rewardsToken = IERC20(_rewardsToken);
     }
+
+    /*----------------------------------*/
+    /*            Functions             */
+    /*----------------------------------*/
 
     function rewardPerToken() public view returns (uint256) {
         if (totalStaked == 0) {
@@ -48,7 +65,7 @@ contract Staking {
     }
 
     // everytime a user calls stake, withdraw or getReward the rewards need to be re-calculated,
-    // to do that this will be attached to those functions
+    // to do that this modifier will be attached to all those functions
     modifier updateReward(address account) {
         rewardsPerTokenStored = rewardPerToken();
         lastCall = block.timestamp;
@@ -79,3 +96,9 @@ contract Staking {
         rewardsToken.transfer(msg.sender, reward);
     }
 }
+
+/*----------------------------------*/
+/*              MATH!!              */
+/*----------------------------------*/
+
+// here we go, this took me a lot of time to get in
