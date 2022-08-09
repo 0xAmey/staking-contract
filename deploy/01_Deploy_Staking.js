@@ -16,6 +16,7 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
         log: true,
         waitConfirmations: network.config.blockConfirmations || 1,
     })
+
     log(" ")
     log(`Staking Contract deployed at ${StakingContract.address}`)
 
@@ -24,4 +25,6 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
     }
 }
 
-module.exports.tags = ["all", "token"]
+module.exports.tags = ["all", "staking"]
+
+//0x76D637e3552E86423313965c6791c2D38421C8Ac

@@ -25,9 +25,7 @@ contract Staking {
     //num of tokens staked per user
     mapping(address => uint256) private userBalance;
 
-    uint256 public initialSupply = 10000e18;
-
-    //initializing the addrssess of stakign and reqard tokens
+    //initializing the addrssess of stakign and reward tokens
     constructor(address _stakingToken, address _rewardsToken) {
         // typecasting the address to ERC-20 token (or smth like that, not sure but it works)
         stakingToken = IERC20(_stakingToken);
@@ -60,18 +58,21 @@ contract Staking {
         _;
     }
 
+    // stake tokens in contract
     function stake(uint256 amount) external updateReward(msg.sender) {
         totalStaked += amount;
         userBalance[msg.sender] += amount;
         stakingToken.transferFrom(msg.sender, address(this), amount);
     }
 
+    // withdraw funds
     function withdraw(uint256 amount) external updateReward(msg.sender) {
         totalStaked -= amount;
         userBalance[msg.sender] -= amount;
         stakingToken.transfer(msg.sender, amount);
     }
 
+    // withdraw the accumalated rewards
     function getReward() external updateReward(msg.sender) {
         uint256 reward = rewards[msg.sender];
         rewards[msg.sender] = 0;
