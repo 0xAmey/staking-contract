@@ -7,7 +7,7 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 /*             Errors               */
 /*----------------------------------*/
 
-error Staking__NoRewardsYet();
+error Staking__NoRewardsAccumalated();
 
 contract Staking {
     /*----------------------------------*/
@@ -22,7 +22,7 @@ contract Staking {
     uint256 public rewardRate = 100;
 
     //keeping track of when was the last time contract was called
-    uint256 public lastCall;
+    uint256 private lastCall;
 
     //summation of reward rate / total supply staked (see last for math)
     uint256 public rewardsPerTokenStored;
@@ -101,8 +101,9 @@ contract Staking {
         rewards[msg.sender] = 0;
         rewardsToken.transfer(msg.sender, reward);
 
+        // reverts if the rewards accumalated are zero
         if (rewards[msg.sender] == 0) {
-            revert Staking__NoRewardsYet();
+            revert Staking__NoRewardsAccumalated();
         }
     }
 
@@ -116,5 +117,9 @@ contract Staking {
 
     function getRewardsTokenAddress() public view returns (address) {
         return address(rewardsToken);
+    }
+
+    function getLastCall() public view returns (uint256) {
+        return lastCall;
     }
 }
