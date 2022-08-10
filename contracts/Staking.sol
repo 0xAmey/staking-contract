@@ -9,6 +9,12 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
 error Staking__NoRewardsAccumalated();
 
+// The formula for calculating the rewards, here no of tokens staked is constant between time interval a and b,
+// where time a is when token is staked and time b is the withdraw time, L(t) is the total tokens staked
+// Rewards = Reward Rate * tokens staked * (Summation of 1/L(t) from time a till time b - summation of 1/L(t) from time 0 to time a-1)
+// here the first part of the equation let's call it s is computed and stored globally for all users
+// the second part of the equation is stored per user depeding on the time when they staked the tokens i.e a-1
+
 contract Staking {
     /*----------------------------------*/
     /*      Variables and Mappings      */
@@ -24,16 +30,16 @@ contract Staking {
     //keeping track of when was the last time contract was called
     uint256 private lastCall;
 
-    //summation of reward rate / total supply staked (see last for math)
+    //summation of reward rate / total supply staked (s)
     uint256 public rewardsPerTokenStored;
 
-    //stores rewardsPerToken when the address first interacts with contract
+    //stores rewardsPerToken when the address first interacts with contract p[user]
     mapping(address => uint256) public rewardsPerTokenPaid;
 
-    //storing the amount of rewards belonging to a certain address (see last for math)
+    //storing the amount of rewards belonging to a certain address
     mapping(address => uint256) rewards;
 
-    //total number of tokens staked in the contract
+    //total number of tokens staked in the contract L(t)
     uint256 public totalStaked;
 
     //number of tokens staked per user
@@ -55,28 +61,32 @@ contract Staking {
     /*            Functions             */
     /*----------------------------------*/
 
+    //calculating summation of R * 1/L(t) (see top for math)
     function rewardPerToken() public view returns (uint256) {
         if (totalStaked == 0) {
             return 0;
         }
         return
+            //scaling upto 1e18 for calculations
             rewardsPerTokenStored +
             ((rewardRate * (block.timestamp - lastCall) * 1e18) / totalStaked);
     }
 
+    // translating over the equation (top) into code
     function earned(address account) public view returns (uint256) {
         return
+            //scaling down 1e18 because we had earlier multiplied by 1e18 for calculations
             ((userBalance[account] * (rewardPerToken() - rewardsPerTokenPaid[account])) / 1e18) +
             rewards[account];
     }
 
-    // everytime a user calls stake, withdraw or getReward the rewards need to be re-calculated,
+    // everytime a user calls stake, withdraw or getReward the rewards need to be re-calculated and variables updated,
     // to do that this modifier will be attached to all those functions
     modifier updateReward(address account) {
         rewardsPerTokenStored = rewardPerToken();
         lastCall = block.timestamp;
-
         rewards[account] = earned(account);
+        //update the token rewards paid to user
         rewardsPerTokenPaid[account] = rewardsPerTokenStored;
         _;
     }
