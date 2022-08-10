@@ -110,11 +110,6 @@ contract Staking {
         uint256 reward = rewards[msg.sender];
         rewards[msg.sender] = 0;
         rewardsToken.transfer(msg.sender, reward);
-
-        // reverts if the rewards accumalated are zero
-        if (rewards[msg.sender] == 0) {
-            revert Staking__NoRewardsAccumalated();
-        }
     }
 
     /*----------------------------------*/
