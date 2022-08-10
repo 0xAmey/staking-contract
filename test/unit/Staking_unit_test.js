@@ -28,9 +28,9 @@ const { developmentChains } = require("../../helper-hardhat-config")
 
           describe("update reward modifier", () => {
               it("should update the timestamp when any of the attached functions are called", async () => {
-                  const transactionResponse = await staking.stake("10")
+                  const transactionResponse = await staking.stake("1000000000000000000")
                   const txReceipt = await transactionResponse.wait(1)
-                  timestamp = await staking.getLastCall()
+                  const timestamp = await staking.getLastCall()
                   assert.equal(timestamp, block.timestamp)
               })
           })
