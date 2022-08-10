@@ -12,11 +12,11 @@ async function main() {
 
     //allowing the contract to use the pirate tokens
     const transactionResponse = await pirateToken.approve(
-        "0x5b06696ccBb49845b8997EC32034B6477361d64c",
+        "0xA8F22381cdBBf9a058dD4180F8F5356457b4D4d4",
         1000
     )
     await transactionResponse.wait(1)
-    //logging the response duh
+    //logging the response
     console.log(transactionResponse)
 }
 
